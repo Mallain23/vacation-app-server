@@ -7,13 +7,14 @@ const cookieParser = require('cookie-parser')
 const morgan = require('morgan')
 
 const passport = require('passport')
-
+const cors = require('cors');
 
 const {router: usersRouter} = require('./users');
 const {router: authRouter, basicStrategy, jwtStrategy} = require('./auth');
+const {router: postRouter} = require('./posts')
 
 const {PORT, DATABASE_URL} = require('./config');
-
+const {CLIENT_ORIGIN} = require('./config');
 
 const app = express();
 
@@ -25,9 +26,14 @@ app.use(morgan('common'));
 
 app.use(express.static('public'));
 
+app.use(
+    cors({
+        origin: CLIENT_ORIGIN
+    })
+);
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
   next();
 });
@@ -40,15 +46,9 @@ passport.use(jwtStrategy);
 
 app.use('/api/users/', usersRouter);
 app.use('/api/auth/', authRouter);
+app.use('/api/protected', postRouter);
 
-app.get('/api/protected',
-    passport.authenticate('jwt', {session: false}),
-    (req, res) => {
-        return res.json({
-            data: 'rosebud'
-        });
-    }
-);
+
 
 app.use('*', (req, res) => {
   return res.status(404).json({message: 'Not Found'});
