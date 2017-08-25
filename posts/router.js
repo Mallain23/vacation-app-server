@@ -8,24 +8,6 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 
-
-router.get('/posts', passport.authenticate('jwt', {session: false}), (req, res) => {
-    const filters = {};
-    const queryableFields = ['destination', 'username', 'title', 'dining', 'lodging', 'sites', 'activities', 'name'];
-
-    let amount = req.query.amount ? parseInt(req.query.amount) : 20
-    console.log(amount)
-    console.log('hey', req.query.amount, amount)
-    let postId = "599f6382ab4ce80d9217c460"
-    queryableFields.forEach(field => {
-        if (req.query[field]) {
-              filters[field] = {$regex: req.query[field], $options: 'i'};
-        }
-    })
-    let updatedFilters = Object.assign({}, filters, {
-      _id: {$ne : postId}
-    })
-    console.log(updatedFilters)
     //     if (filters.title) {
     //    filters.title = {$regex: filters.title, $options: 'i'}
     //  }
@@ -41,15 +23,35 @@ router.get('/posts', passport.authenticate('jwt', {session: false}), (req, res) 
     //             post: ['test', 'help']
     //         });
     // }
+    // let destinationString = req.query.destination
+    // let destinationArray = destinationString.split(' ')
+    //
+    // const filter = {
+    //                   destination: {$regex: destinationString, $options: 'i'}
+    //                 }
+    //
+    // destinationArray.forEach(word => advancedFilters.push({  destination: {$regex: word, $options: 'i'}}))
+
+    // advancedFilters[1] = advancedFilters[1] ? advancedFilters[1] : advancedFilters[0]
+    // advancedFilters[2] = advancedFilters[2] ? advancedFilters[2] : advancedFilters[0]
+    // .find({$or: [filter, advancedFilters[0], advancedFilters[1], advancedFilters[2]]})
+    // console.log('here', filter, advancedFilters)
+
+router.get('/posts/', passport.authenticate('jwt', {session: false}), (req, res) => {
+    const filters = {};
+    const queryableFields = ['destination', 'username', 'title', 'dining', 'lodging', 'sites', 'activities', 'name'];
+
+    queryableFields.forEach(field => {
+        if (req.query[field]) {
+              filters[field] = {$regex: req.query[field], $options: 'i'};
+        }
+    })
 
     Posts
-    .find(updatedFilters)
-    .limit(amount)
+    .find(filters)
+    .limit(20)
     .exec()
-    .then(_posts => {
-      console.log(_posts)
-      return res.json(_posts.map(post => post.apiRpr()))
-    })
+    .then(_posts => res.json(_posts.map(post => post.apiRpr())))
     .catch(err => {
               console.error(err);
               res.status(500).json({message: 'internal server error'})
@@ -58,21 +60,62 @@ router.get('/posts', passport.authenticate('jwt', {session: false}), (req, res) 
 
 router.get('/posts/:postId', passport.authenticate('jwt', {session: false}), (req, res) => {
     let postId = {_id: req.params.postId}
-    console.log(postId)
 
     Posts
     .findOne(postId)
     .exec()
-    .then(_post => {
-      console.log(_post)
-      return res.json(_post.apiRpr())
-    })
+    .then(_post => res.json(_post.apiRpr()))
     .catch(err => {
               console.error(err);
               res.status(500).json({message: 'internal server error'})
     })
 })
 
+router.get('/destination', passport.authenticate('jwt', {session: false}), (req, res) => {
+      let destinationString = req.query.destination
+      let amount = parseInt(req.query.amount)
+      console.log(destinationString)
+
+      Posts
+      .find({$text: {$search: destinationString}}, { score: { $meta: "textScore" }})
+      .sort( { score: { $meta: "textScore" }})
+      .limit(amount)
+      .exec()
+      .then(_posts => res.json(_posts.map(post => post.apiRpr())))
+      .catch(err => {
+                console.error(err);
+                res.status(500).json({message: 'internal server error'})
+      })
+})
+
+router.get('/posts/related/:postId', passport.authenticate('jwt', {session: false}), (req, res) => {
+      const postId = req.params.postId
+
+      let advancedFilters = []
+      let destinationString = req.query.destination
+      let destinationArray = destinationString.split(' ')
+
+      destinationArray.forEach(word => advancedFilters.push({  destination: {$regex: word, $options: 'i'},
+                                                                        _id: {$ne: postId}
+                                                                      }))
+
+      advancedFilters[1] = advancedFilters[1] ? advancedFilters[1] : advancedFilters[0]
+      advancedFilters[2] = advancedFilters[2] ? advancedFilters[2] : advancedFilters[0]
+
+
+      Posts
+      find({$text: {$search: destinationString}}, { score: { $meta: "textScore" }})
+      .sort( { score: { $meta: "textScore" }})
+      .limit(5)
+      .exec()
+      .then(_posts => {
+        return res.json(_posts.map(post => post.apiRpr()))
+      })
+      .catch(err => {
+                console.error(err);
+                res.status(500).json({message: 'internal server error'})
+    })
+})
 
 router.post('/posts', passport.authenticate('jwt', {session: false}), (req, res) => {
     const requiredFields = ['title', 'author', 'destination', 'rating']
