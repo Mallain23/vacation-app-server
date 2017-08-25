@@ -20,32 +20,18 @@ postsSchema.methods.apiRpr = function () {
       return {
         postId: this.id,
         title: this.title,
-        destination: this.destination || '',
-        lodging: this.lodging || '',
-        sites: this.sites || '',
-        advice: this.advice || '',
+        destination: this.destination,
+        lodging: this.lodging || 'User did not provide lodging feedback',
+        sites: this.sites || 'User did not provide feedback on sites',
+        advice: this.advice || 'User did not provide additional advice',
         name: this.name,
         username: this.username,
-        activities: this.activities || '',
+        activities: this.activities || 'User did not provide feedback on activities',
         rating: this.rating,
-        dining: this.dining || ''
+        dining: this.dining || 'User did not provide feedback on dining'
       }
   }
-//
-//   username: {
-//     type: String,
-//     required: true,
-//     unique: true
-//   },
-//   password: {
-//     type: String,
-//     required: true
-//   },
-//   firstName: {type: String, default: ""},
-//   lastName: {type: String, default: ""},
-//   bio: {type: String, default: ""},
-//   avatar: {type: String, default: ""},
-// });
+
 
 
 const Posts = mongoose.model('Posts', postsSchema);
