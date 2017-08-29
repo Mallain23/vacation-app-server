@@ -15,8 +15,9 @@ const UserSchema = mongoose.Schema({
   },
   firstName: {type: String, default: ""},
   lastName: {type: String, default: ""},
+  favorite: {type: String, default: ""},
   bio: {type: String, default: ""},
-  avatar: {type: String, default: ""},
+  avatar: {type: String, default: ""}
 });
 
 UserSchema.methods.apiRepr = function() {
@@ -24,7 +25,8 @@ UserSchema.methods.apiRepr = function() {
     username: this.username || '',
     firstName: this.firstName || '',
     lastName: this.lastName || '',
-    bio: this.bio || '',
+    bio: this.bio || 'No information provided yet!',
+    favorite: this.favorite || 'No information provided yet!',
     avatar: this.avatar || '',
     profileId: this._id
   };
