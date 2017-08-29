@@ -71,13 +71,13 @@ router.get('/posts/:postId', passport.authenticate('jwt', {session: false}), (re
     })
 })
 
-router.get('/destination', passport.authenticate('jwt', {session: false}), (req, res) => {
-      let destinationString = req.query.destination
+router.get('/search', passport.authenticate('jwt', {session: false}), (req, res) => {
+      let searchString = req.query.searchTerm
       let amount = parseInt(req.query.amount)
-      console.log(destinationString)
+
 
       Posts
-      .find({$text: {$search: destinationString}}, { score: { $meta: "textScore" }})
+      .find({$text: {$search: searchString}}, { score: { $meta: "textScore" }})
       .sort( { score: { $meta: "textScore" }})
       .limit(amount)
       .exec()
@@ -141,7 +141,8 @@ router.post('/posts', passport.authenticate('jwt', {session: false}), (req, res)
       advice: req.body.advice,
       rating: req.body.rating,
       name: req.body.name,
-      username: req.body.username
+      username: req.body.username,
+      profileId: req.body.profileId
     })
 
     .then(post =>  res.status(201).json(post.apiRpr()))

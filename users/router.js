@@ -120,15 +120,41 @@ router.post('/', jsonParser, (req, res) => {
     });
 
 
-router.get('/userdata/:user', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.get('/userdata/:user/:profileId', passport.authenticate('jwt', {session: false}), (req, res) => {
+  let filter = req.params.user !== 'null' ? { username: req.params.user} : { _id: req.params.profileId}
+  console.log(filter)
 
-    let username = {username: req.params.user}
-    
     return User
-      .findOne(username)
+      .findOne(filter)
       .exec()
       .then(user => res.json(user.apiRepr()))
       .catch(err => res.status(500).json({message: 'Internal server error'}));
 });
+
+router.put('/', passport.authenticate('jwt', {session: false}), (req, res) => {
+    const requiredFields = ['firstName', 'lastName'];
+    const missingField = requiredFields.find(field => !(field in req.body));
+    const username = {username: req.body.username}
+    updatedProfile = req.body
+    if (missingField) {
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: 'Missing field',
+            location: missingField
+        })
+   }
+
+    return User
+    .findOneAndUpdate(username, updatedProfile, {new: true})
+    .then(user => {
+      res.json(user.apiRepr())
+    })
+    .catch(err => {
+        console.error(err);
+        res.status(500).json({message: 'Internal Server Error'})
+    })
+})
+
 
     module.exports = {router};

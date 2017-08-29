@@ -13,7 +13,8 @@ const postsSchema = mongoose.Schema({
     advice: String,
     rating: {type: Number, required: true},
     name: String,
-    username: String
+    username: String,
+    profileId: String
 })
 
 postsSchema.methods.apiRpr = function () {
@@ -28,7 +29,8 @@ postsSchema.methods.apiRpr = function () {
         username: this.username,
         activities: this.activities || 'User did not provide feedback on activities',
         rating: this.rating,
-        dining: this.dining || 'User did not provide feedback on dining'
+        dining: this.dining || 'User did not provide feedback on dining',
+        profileId: this.profileId
       }
   }
 
