@@ -19,14 +19,15 @@ router.get('/posts/:sliceIndex', passport.authenticate('jwt', {session: false}),
               filters[field] = {$regex: req.query[field], $options: 'i'};
         }
     })
-
+    console.log(filters, sliceIndex)
     Posts
     .find(filters)
+    .sort({_id: -1})
+    .skip(20 * sliceIndex)
+    .limit(20)
     .exec()
     .then(_posts => {
-      _posts = _posts.reverse()
-      let postArray = _posts.slice(20 * sliceIndex, (sliceIndex * 20) + 20)
-      res.json(postArray.map(post => post.apiRpr()))
+        res.json(_posts.map(post => post.apiRpr()))
     })
     .catch(err => {
               console.error(err);
@@ -48,13 +49,14 @@ router.get('/post/:postId', passport.authenticate('jwt', {session: false}), (req
 })
 
 router.get('/search', passport.authenticate('jwt', {session: false}), (req, res) => {
-      let searchString = req.query.searchTerm
-      let amount = parseInt(req.query.amount)
-
+      const searchString = req.query.searchTerm
+      const amount = parseInt(req.query.amount)
+      const searchIndex = parseInt(req.query.searchIndex)
 
       Posts
       .find({$text: {$search: searchString}}, { score: { $meta: "textScore" }})
       .sort( { score: { $meta: "textScore" }})
+      .skip(amount * searchIndex)
       .limit(amount)
       .exec()
       .then(_posts => res.json(_posts.map(post => post.apiRpr())))
