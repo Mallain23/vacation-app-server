@@ -8,39 +8,12 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 
-    //     if (filters.title) {
-    //    filters.title = {$regex: filters.title, $options: 'i'}
-    //  }
-     //
-    //  if (filters.author) {
-    //    filters.author = {$regex: filters.author, $options: 'i'}
-    //  }
-     //
-    //  if (filters.destination) {
-    //    filters.destination= {$regex: filters.author, $options: 'i'}
-    //  }
-    //         return res.json({
-    //             post: ['test', 'help']
-    //         });
-    // }
-    // let destinationString = req.query.destination
-    // let destinationArray = destinationString.split(' ')
-    //
-    // const filter = {
-    //                   destination: {$regex: destinationString, $options: 'i'}
-    //                 }
-    //
-    // destinationArray.forEach(word => advancedFilters.push({  destination: {$regex: word, $options: 'i'}}))
 
-    // advancedFilters[1] = advancedFilters[1] ? advancedFilters[1] : advancedFilters[0]
-    // advancedFilters[2] = advancedFilters[2] ? advancedFilters[2] : advancedFilters[0]
-    // .find({$or: [filter, advancedFilters[0], advancedFilters[1], advancedFilters[2]]})
-    // console.log('here', filter, advancedFilters)
-
-router.get('/posts/', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.get('/posts/:sliceIndex', passport.authenticate('jwt', {session: false}), (req, res) => {
     const filters = {};
     const queryableFields = ['destination', 'username', 'title', 'dining', 'lodging', 'sites', 'activities', 'name'];
-
+    const sliceIndex = parseInt(req.params.sliceIndex)
+    console.log('her', sliceIndex)
     queryableFields.forEach(field => {
         if (req.query[field]) {
               filters[field] = {$regex: req.query[field], $options: 'i'};
@@ -49,16 +22,19 @@ router.get('/posts/', passport.authenticate('jwt', {session: false}), (req, res)
 
     Posts
     .find(filters)
-    .limit(20)
     .exec()
-    .then(_posts => res.json(_posts.map(post => post.apiRpr())))
+    .then(_posts => {
+      _posts = _posts.reverse()
+      let postArray = _posts.slice(20 * sliceIndex, (sliceIndex * 20) + 20)
+      res.json(postArray.map(post => post.apiRpr()))
+    })
     .catch(err => {
               console.error(err);
               res.status(500).json({message: 'internal server error'})
     })
 })
 
-router.get('/posts/:postId', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.get('/post/:postId', passport.authenticate('jwt', {session: false}), (req, res) => {
     let postId = {_id: req.params.postId}
 
     Posts

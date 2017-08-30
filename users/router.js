@@ -122,7 +122,6 @@ router.post('/', jsonParser, (req, res) => {
 
 router.get('/userdata/:user/:profileId', passport.authenticate('jwt', {session: false}), (req, res) => {
   let filter = req.params.user !== 'null' ? { username: req.params.user} : { _id: req.params.profileId}
-  console.log(filter)
 
     return User
       .findOne(filter)
