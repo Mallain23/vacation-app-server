@@ -4,30 +4,36 @@ const jwt = require('jsonwebtoken');
 const {jwtStrategy} = require('../auth');
 const {Posts} = require('./models')
 const router = express.Router();
+const { formatPostObj } = require('./utils')
 
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 
 
+
 router.get('/posts/:sliceIndex', passport.authenticate('jwt', {session: false}), (req, res) => {
     const filters = {};
     const queryableFields = ['destination', 'username', 'title', 'dining', 'lodging', 'sites', 'activities', 'name'];
+
     const sliceIndex = parseInt(req.params.sliceIndex)
-    console.log('her', sliceIndex)
+    const amount = parseInt(req.query.amount)
+
     queryableFields.forEach(field => {
         if (req.query[field]) {
               filters[field] = {$regex: req.query[field], $options: 'i'};
         }
     })
-    console.log(filters, sliceIndex)
+
     Posts
     .find(filters)
     .sort({_id: -1})
-    .skip(20 * sliceIndex)
-    .limit(20)
+    .skip(amount * sliceIndex)
+    .limit(amount + 1)
     .exec()
     .then(_posts => {
-        res.json(_posts.map(post => post.apiRpr()))
+        const returnObj = formatPostObj(_posts, amount)
+
+        return res.json(returnObj)
     })
     .catch(err => {
               console.error(err);
@@ -57,9 +63,12 @@ router.get('/search', passport.authenticate('jwt', {session: false}), (req, res)
       .find({$text: {$search: searchString}}, { score: { $meta: "textScore" }})
       .sort( { score: { $meta: "textScore" }})
       .skip(amount * searchIndex)
-      .limit(amount)
+      .limit(amount + 1)
       .exec()
-      .then(_posts => res.json(_posts.map(post => post.apiRpr())))
+      .then(_posts => {
+          const returnObj = formatPostObj(_posts, amount)
+          res.json(returnObj)
+      })
       .catch(err => {
                 console.error(err);
                 res.status(500).json({message: 'internal server error'})
