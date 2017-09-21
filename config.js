@@ -8,4 +8,4 @@ exports.TEST_DATABASE_URL = 'mongodb://mallain23:afrojack22@ds163721.mlab.com:63
 exports.JWT_SECRET = process.env.JWT_SECRET || 'MayTheShadowOfTheMoonFallOnAWorldAtPeace';
 exports.JWT_EXPIRY = process.env.JWT_EXPIRY || '7d';
 
-exports.CLIENT_ORIGIN =  process.env.CLIENT_ORIGIN || 'https://designer-tapir-81850.netlify.com'
+exports.CLIENT_ORIGIN = 'https://designer-tapir-81850.netlify.com'
