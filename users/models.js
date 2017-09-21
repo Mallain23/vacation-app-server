@@ -17,7 +17,21 @@ const UserSchema = mongoose.Schema({
   lastName: {type: String, default: ""},
   favorite: {type: String, default: ""},
   bio: {type: String, default: ""},
-  avatar: {type: String, default: ""}
+  avatar: {type: String, default: ""},
+  favoritePosts: [{
+          title: {type: String, required: true},
+          destination: {type: String, required: true},
+          lodging: String,
+          dining: String,
+          sites: String,
+          activities: String,
+          advice: String,
+          rating: {type: Number, required: true},
+          name: String,
+          username: String,
+          profileId: String,
+          postId: String
+    }]
 });
 
 UserSchema.methods.apiRepr = function() {
@@ -28,7 +42,8 @@ UserSchema.methods.apiRepr = function() {
     bio: this.bio || 'No information provided yet!',
     favorite: this.favorite || 'No information provided yet!',
     avatar: this.avatar || '',
-    profileId: this._id
+    profileId: this._id,
+    favoritePosts: this.favoritePosts || ['']
   };
 }
 

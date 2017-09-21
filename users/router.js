@@ -122,7 +122,7 @@ router.post('/', jsonParser, (req, res) => {
 
 router.get('/userdata/:user/:profileId', passport.authenticate('jwt', {session: false}), (req, res) => {
   let filter = req.params.user !== 'null' ? { username: req.params.user} : { _id: req.params.profileId}
-
+  console.log(filter, req.params)
     return User
       .findOne(filter)
       .exec()
@@ -130,10 +130,11 @@ router.get('/userdata/:user/:profileId', passport.authenticate('jwt', {session: 
       .catch(err => res.status(500).json({message: 'Internal server error'}));
 });
 
+
 router.put('/', passport.authenticate('jwt', {session: false}), (req, res) => {
     const requiredFields = ['firstName', 'lastName'];
     const missingField = requiredFields.find(field => !(field in req.body));
-    const username = {username: req.body.username}
+    
     updatedProfile = req.body
     if (missingField) {
         return res.status(422).json({
@@ -143,6 +144,9 @@ router.put('/', passport.authenticate('jwt', {session: false}), (req, res) => {
             location: missingField
         })
    }
+
+
+   const username = {username: req.body.username}
 
     return User
     .findOneAndUpdate(username, updatedProfile, {new: true})
@@ -155,5 +159,63 @@ router.put('/', passport.authenticate('jwt', {session: false}), (req, res) => {
     })
 })
 
+router.put('/favorites', passport.authenticate('jwt', {session: false}), (req, res) => {
 
-    module.exports = {router};
+    const requiredFields = ['username', 'post'];
+
+    const missingField = requiredFields.find(field => !(field in req.body));
+
+    if (missingField) {
+        return res.status(422).json({
+            code: 422,
+            reason: 'ValidationError',
+            message: 'Missing field',
+            location: missingField
+        })
+    }
+    const username = {username: req.body.username}
+    const post = req.body.post
+
+    return User
+    .update(username, {$addToSet: {favoritePosts: post}}, {new: true})
+    .then(user => {
+        return User
+            .findOne(username)
+            .exec()
+        })
+    .then(user => res.status(201).json(user.apiRepr()))
+    .catch(err => {
+        console.error(err);
+        res.status(500).json({message: 'Internal Server Error'})
+    })
+})
+
+
+router.delete('/favorites/:postId/:username', passport.authenticate('jwt', {session: false}), (req, res) => {
+
+    if (!req.params.postId || !req.params.username) {
+        const message = `Request path is missing a required field.`
+        console.error(message)
+
+        return res.status(400).send(message)
+    }
+
+    const { username, postId } = req.params
+
+    return User
+    .findOneAndUpdate({username}, {$pull: {favoritePosts: {postId}}})
+    .exec()
+    .then(user => {
+        return User
+            .findOne({username})
+            .exec()
+        })
+    .then(user => res.status(201).json(user.apiRepr()))
+    .catch(err => {
+        console.error(err);
+        res.status(500).json({message: 'Internal Server Error'})
+    });
+});
+
+
+module.exports = {router};
