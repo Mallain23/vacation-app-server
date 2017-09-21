@@ -122,7 +122,7 @@ router.post('/', jsonParser, (req, res) => {
 
 router.get('/userdata/:user/:profileId', passport.authenticate('jwt', {session: false}), (req, res) => {
   let filter = req.params.user !== 'null' ? { username: req.params.user} : { _id: req.params.profileId}
-  console.log(filter, req.params)
+  
     return User
       .findOne(filter)
       .exec()
@@ -134,7 +134,7 @@ router.get('/userdata/:user/:profileId', passport.authenticate('jwt', {session: 
 router.put('/', passport.authenticate('jwt', {session: false}), (req, res) => {
     const requiredFields = ['firstName', 'lastName'];
     const missingField = requiredFields.find(field => !(field in req.body));
-    
+
     updatedProfile = req.body
     if (missingField) {
         return res.status(422).json({

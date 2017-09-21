@@ -1,0 +1,11 @@
+language: node_js
+node_js: node
+services:
+- mongodb
+deploy:
+  provider: heroku
+  api_key:
+    secure: blbBWmhTG+5Gs6/D0lUWS9KjDgp/yS6/uZwhp3o+wYbH7tJY2j0JIYFUEKcZoWeCh3xfpLwtCugkqdG8+FpfO8Vb1hBY4NXMkQZjM4sUKf1yPhNfboj1M03J8ldRFBPd1a/mSpILTTzD4Nw7bepp8NH8LRSfNFem2kdK/X5RX6vQDbKp7Y8BxoysVHTO5nSm+BYRaZSpHsPvArrG8o3Vcor1pZOX4mpptTZQNvwITtlKrf4QzUwu+f0gAdeNtVVysxv+BmrCJ5Q62F2LvvE8R3/3JjSfMhP07De/1bBs4dH+SlKKqn8BIA9l038eEMZBHiaOmRp0UMmrZTSGAb6hF0Kdy7BxvAlVDtjzeneMbQzumNTYTo4v3aA90Bbmm4sy2kMAMeUkAdkeihksM1lceytXBZ8Bqp1HWJlbk3pLGXJ9d0djWsNvIZauYvzIXzcRMOXtZTttUDqRlwm36HdJzH50AZnKqKcyb1e4pFQN8p5UFdN/dG/jRPU3w9YI3b6pwMI/eR2HNJtnsCbWw5Z7v7FGg8DaMEjp/WWsMlwV4fv+xKh4xbBHGB54ij9qPRV3VGPSnqRa7iHNY+j+P+LcEM+Xre47xlNWi+ItPEKYp3y1ck7meSNmoGzVNT21t6jjaAQr5EH1lQjtYUU2Zt1gNq/bWJYHrNRgAMFhKAEL4Bs=
+  app: still-oasis-57332
+  on:
+    repo: Mallain23/vacation-app-server

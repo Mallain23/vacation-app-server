@@ -186,48 +186,4 @@ router.delete('/posts/:postId',  passport.authenticate('jwt', {session: false}),
     .catch(err => res.status(500).json({message: 'Internal Server Error'}))
 })
 
-
-router.get('/sort', passport.authenticate('jwt', {session: false}), (req, res) => {
-
-  return Posts
-  .aggregate([{"$group": {_id: "$destination", count: { "$sum": 1}}}])
-  .sort({count: -1})
-  .then(posts => {
-    return Posts
-          .find({destination: posts[0]._id})
-          .sort({_id: -1})
-          .limit(20)
-          .then(posts => {
-          })
-  })
-  .then()
-  .catch(err => res.status(500).json({message: 'Internal Server Error'}))
-})
-// router.get('/posts/',  passport.authenticate('jwt', {session: false}), (req, res) => {
-//
-//       if (!req.params.destination) {
-//           const message = `Request path is missing request ID.`
-//           console.error(message)
-//
-//           return res.status(400).send(message)
-//       }
-
-
-
-//     if (filters.title) {
-//    filters.title = {$regex: filters.title, $options: 'i'}
-//  }
- //
-//  if (filters.author) {
-//    filters.author = {$regex: filters.author, $options: 'i'}
-//  }
- //
-//  if (filters.destination) {
-//    filters.destination= {$regex: filters.author, $options: 'i'}
-//  }
-//         return res.json({
-//             post: ['test', 'help']
-//         });
-// }
-
 module.exports = {router};

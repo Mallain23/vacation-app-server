@@ -58,7 +58,7 @@ app.use('*', (req, res) => {
 let server;
 
 function runServer() {
-  console.log(DATABASE_URL)
+
   return new Promise((resolve, reject) => {
     mongoose.connect(DATABASE_URL, err => {
       if (err) {
