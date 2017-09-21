@@ -167,6 +167,7 @@ router.put('/posts',  passport.authenticate('jwt', {session: false}), (req, res)
     })
 })
 
+router.get('/')
 
 router.delete('/posts/:postId',  passport.authenticate('jwt', {session: false}), (req, res) => {
 
