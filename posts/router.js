@@ -1,10 +1,13 @@
 const express = require('express');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
+
+const { formatPostObj, formatResponse } = require('./utils');
 const {jwtStrategy} = require('../auth');
-const {Posts} = require('./models')
+const {Posts} = require('./models');
+
 const router = express.Router();
-const { formatPostObj, formatResponse } = require('./utils')
+
 
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
