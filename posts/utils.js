@@ -26,4 +26,11 @@ const formatPostObj = (posts, amount) => {
     return returnObj
 }
 
-module.exports = {formatPostObj}
+const formatResponse = post => {
+  if (post === null ) {
+    return {id: false}
+  }
+   return post.apiRpr()
+}
+
+module.exports = {formatPostObj, formatResponse}

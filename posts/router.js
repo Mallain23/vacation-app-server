@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const {jwtStrategy} = require('../auth');
 const {Posts} = require('./models')
 const router = express.Router();
-const { formatPostObj } = require('./utils')
+const { formatPostObj, formatResponse } = require('./utils')
 
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
@@ -47,7 +47,10 @@ router.get('/post/:postId', passport.authenticate('jwt', {session: false}), (req
     Posts
     .findOne(postId)
     .exec()
-    .then(_post => res.json(_post.apiRpr()))
+    .then(_post => {
+      const returnObj = formatResponse(_post)
+      res.json(returnObj)
+    })
     .catch(err => {
               console.error(err);
               res.status(500).json({message: 'internal server error'})
@@ -166,8 +169,6 @@ router.put('/posts',  passport.authenticate('jwt', {session: false}), (req, res)
         res.status(500).json({message: 'Internal Server Error'})
     })
 })
-
-router.get('/')
 
 router.delete('/posts/:postId',  passport.authenticate('jwt', {session: false}), (req, res) => {
 
